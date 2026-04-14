@@ -28,7 +28,10 @@ export function BlogPostDetailHeader({ post }: { post: BlogPostDetail }) {
         <Link href="/blog" className="hover:text-primary">
           Blog
         </Link>
-        <ChevronRightIcon className="size-3.5 shrink-0 opacity-60" aria-hidden />
+        <ChevronRightIcon
+          className="size-3.5 shrink-0 opacity-60"
+          aria-hidden
+        />
         {firstTag ? (
           <>
             <Link
@@ -109,13 +112,19 @@ export function BlogPostDetailHeader({ post }: { post: BlogPostDetail }) {
             @{post.author.username}
           </span>
         </Link>
-        <span aria-hidden className="hidden text-muted-foreground/35 dark:text-white/20 sm:inline">
+        <span
+          aria-hidden
+          className="hidden text-muted-foreground/35 dark:text-white/20 sm:inline"
+        >
           ·
         </span>
         <time dateTime={post.createdAt}>Đăng {formatDate(post.createdAt)}</time>
         {post.updatedAt !== post.createdAt ? (
           <>
-            <span aria-hidden className="text-muted-foreground/35 dark:text-white/20">
+            <span
+              aria-hidden
+              className="text-muted-foreground/35 dark:text-white/20"
+            >
               ·
             </span>
             <time dateTime={post.updatedAt}>

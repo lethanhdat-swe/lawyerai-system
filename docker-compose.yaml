@@ -1,0 +1,33 @@
+services:
+  lawyerai-ui:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    volumes:
+      - D:/Project/lawyerai/frontend:/app
+      - /app/node_modules
+      - /app/.next
+  lawyerai-api:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - D:/Project/lawyerai/backend:/app
+      - /app/node_modules
+      - /app/generated/prisma
+  lawyerai-db:
+    image: mysql:oraclelinux9
+    ports:
+      - 13306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=lawyerai
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=admin
+    volumes:
+      - D:/database/lawyerai/data:/var/lib/mysql

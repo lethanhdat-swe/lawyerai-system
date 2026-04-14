@@ -19,6 +19,10 @@ export function resolvePublicImageUrl(
     return null;
   }
 
-  const base = getApiBaseUrl().replace(/\/$/, "");
+  const baseApiUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:8000";
+
+  const base = baseApiUrl.replace(/\/$/, "");
+
   return `${base}${path}`;
 }
