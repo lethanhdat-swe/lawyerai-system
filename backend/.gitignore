@@ -1,0 +1,13 @@
+/node_modules
+/dist
+.env
+.env.*
+!.env.example
+/generated
+*.log
+.DS_Store
+/uploads
+
+# Local secrets / service accounts (never commit)
+**/firebase-adminsdk*.json
+**/lawyer-ai-*-firebase-adminsdk*.json

@@ -1,0 +1,187 @@
+import type { Prisma } from "../../generated/prisma/client.js";
+import { ReputationReason, UserRole } from "../../generated/prisma/enums.js";
+import {
+    DELTA_BLOG_POST_LIKED,
+    DELTA_BLOG_PUBLISHED,
+} from "../constants/reputation.constants.js";
+import { ErrorCode } from "../constants/errorCodes.js";
+import { HttpStatus } from "../constants/httpStatus.js";
+import { HttpError } from "../lib/httpError.js";
+import { getPrisma } from "../lib/prisma.js";
+
+export type ContributionTier = {
+    code: string;
+    labelVi: string;
+};
+
+/** Ngưỡng bậc đóng góp (điểm tích lũy). */
+const TIER_THRESHOLDS: { min: number; tier: ContributionTier }[] = [
+    { min: 5000, tier: { code: "exceptional", labelVi: "Kiện xuất" } },
+    { min: 2000, tier: { code: "notable", labelVi: "Nổi bật" } },
+    { min: 500, tier: { code: "active", labelVi: "Tích cực" } },
+    { min: 100, tier: { code: "contributor", labelVi: "Đóng góp" } },
+    { min: 1, tier: { code: "newcomer", labelVi: "Mới tham gia" } },
+];
+
+export function contributionTierFromScore(score: number): ContributionTier {
+    for (const { min, tier } of TIER_THRESHOLDS) {
+        if (score >= min) return tier;
+    }
+    return { code: "none", labelVi: "—" };
+}
+
+export type LeaderboardPublicItemDto = {
+    rank: number;
+    userId: string;
+    score: number;
+    contributorOptOut: boolean;
+    tierCode: string;
+    tierLabelVi: string;
+    username: string | null;
+    displayName: string | null;
+    avatarUrl: string | null;
+    isVerifiedLawyer: boolean;
+};
+
+export type LeaderboardPublicResultDto = {
+    period: "all_time";
+    items: LeaderboardPublicItemDto[];
+};
+
+export async function applyReputationDelta(input: {
+    userId: string;
+    delta: number;
+    reason: ReputationReason;
+    refHubCommentId?: string | null;
+    refBlogPostId?: string | null;
+    refBlogCommentId?: string | null;
+}): Promise<{ score: number }> {
+    const prisma = getPrisma();
+    const user = await prisma.user.findFirst({
+        where: { id: input.userId },
+        select: { id: true },
+    });
+    if (!user) {
+        throw new HttpError(
+            HttpStatus.NOT_FOUND,
+            "User not found",
+            ErrorCode.NOT_FOUND,
+        );
+    }
+
+    await prisma.$transaction(async (tx) => {
+        await tx.reputationLedger.create({
+            data: {
+                userId: input.userId,
+                delta: input.delta,
+                reason: input.reason,
+                refHubCommentId: input.refHubCommentId ?? null,
+                refBlogPostId: input.refBlogPostId ?? null,
+                refBlogCommentId: input.refBlogCommentId ?? null,
+            },
+        });
+        await tx.userContributionScore.upsert({
+            where: { userId: input.userId },
+            create: { userId: input.userId, score: input.delta },
+            update: { score: { increment: input.delta } },
+        });
+    });
+
+    const row = await prisma.userContributionScore.findUnique({
+        where: { userId: input.userId },
+        select: { score: true },
+    });
+    const raw = row?.score ?? 0;
+    if (raw < 0) {
+        await prisma.userContributionScore.update({
+            where: { userId: input.userId },
+            data: { score: 0 },
+        });
+        return { score: 0 };
+    }
+    return { score: raw };
+}
+
+export async function awardPublishedBlogScore(
+    authorId: string,
+    blogPostId: string,
+    likeCount: number,
+): Promise<void> {
+    await applyReputationDelta({
+        userId: authorId,
+        delta: DELTA_BLOG_PUBLISHED,
+        reason: ReputationReason.BLOG_QUALITY,
+        refBlogPostId: blogPostId,
+    });
+    if (likeCount > 0) {
+        await applyReputationDelta({
+            userId: authorId,
+            delta: likeCount * DELTA_BLOG_POST_LIKED,
+            reason: ReputationReason.BLOG_POST_LIKED,
+            refBlogPostId: blogPostId,
+        });
+    }
+}
+
+export async function revokePublishedBlogScore(
+    authorId: string,
+    blogPostId: string,
+    likeCount: number,
+): Promise<void> {
+    await applyReputationDelta({
+        userId: authorId,
+        delta: -DELTA_BLOG_PUBLISHED,
+        reason: ReputationReason.BLOG_QUALITY,
+        refBlogPostId: blogPostId,
+    });
+    if (likeCount > 0) {
+        await applyReputationDelta({
+            userId: authorId,
+            delta: -(likeCount * DELTA_BLOG_POST_LIKED),
+            reason: ReputationReason.BLOG_POST_LIKED,
+            refBlogPostId: blogPostId,
+        });
+    }
+}
+
+export async function listPublicContributorsLeaderboard(params: {
+    limit: number;
+}): Promise<LeaderboardPublicResultDto> {
+    const prisma = getPrisma();
+    const where: Prisma.UserContributionScoreWhereInput = {
+        score: { gt: 0 },
+    };
+
+    const rows = await prisma.userContributionScore.findMany({
+        where,
+        orderBy: { score: "desc" },
+        take: params.limit,
+        include: {
+            user: {
+                include: { profile: true },
+            },
+        },
+    });
+
+    const items: LeaderboardPublicItemDto[] = rows.map((row, index) => {
+        const p = row.user.profile;
+        const tier = contributionTierFromScore(row.score);
+        const optOut = p?.contributorOptOut ?? false;
+        const isVerifiedLawyer = row.user.role === UserRole.VERIFIED_LAWYER;
+
+        return {
+            rank: index + 1,
+            userId: row.userId,
+            score: row.score,
+            contributorOptOut: optOut,
+            tierCode: tier.code,
+            tierLabelVi: tier.labelVi,
+            username: optOut ? null : (p?.username ?? null),
+            displayName: optOut ? null : (p?.displayName ?? null),
+            avatarUrl: optOut ? null : (p?.avatarUrl ?? null),
+            isVerifiedLawyer: optOut ? false : isVerifiedLawyer,
+        };
+    });
+
+    return { period: "all_time", items };
+}
