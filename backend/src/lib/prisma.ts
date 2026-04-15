@@ -1,5 +1,5 @@
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import { PrismaClient } from "../../generated/prisma/client.js";
+import { PrismaClient } from "@prisma/client";
 
 let prisma: PrismaClient | null = null;
 
@@ -18,9 +18,7 @@ export function connectPrisma(): PrismaClient {
 
 export function getPrisma(): PrismaClient {
     if (!prisma) {
-        throw new Error(
-            "Prisma not initialized; call connectPrisma() before handling requests",
-        );
+        throw new Error("Prisma not initialized; call connectPrisma() before handling requests");
     }
     return prisma;
 }

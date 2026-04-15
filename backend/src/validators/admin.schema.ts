@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CrawlLogStatus, LawyerVerificationStatus, UserRole } from "../../generated/prisma/enums.js";
+import { CrawlLogStatus, LawyerVerificationStatus, UserRole } from "@prisma/client";
 
 export const adminDashboardRangeSchema = z.enum(["7d", "30d", "3m"]);
 
@@ -74,8 +74,6 @@ export const adminAiConfigPatchBodySchema = z
     .strict()
     .refine(
         (data) =>
-            data.advisor_prompt !== undefined ||
-            data.community_prompt !== undefined ||
-            data.blog_prompt !== undefined,
+            data.advisor_prompt !== undefined || data.community_prompt !== undefined || data.blog_prompt !== undefined,
         { message: "At least one of advisor_prompt, community_prompt, or blog_prompt is required" },
     );

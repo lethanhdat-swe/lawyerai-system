@@ -10,6 +10,8 @@ services:
       - D:/Project/lawyerai/frontend:/app
       - /app/node_modules
       - /app/.next
+    env_file:
+      - ./frontend/.env.local
   lawyerai-api:
     build: ./backend
     ports:
@@ -20,6 +22,8 @@ services:
       - D:/Project/lawyerai/backend:/app
       - /app/node_modules
       - /app/generated/prisma
+    env_file:
+      - ./backend/.env.local
   lawyerai-db:
     image: mysql:oraclelinux9
     ports:

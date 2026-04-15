@@ -1,4 +1,4 @@
-import { IdeaStatus } from "../../generated/prisma/client.js";
+import { IdeaStatus } from "@prisma/client";
 import { parseJsonArray } from "../lib/aiResponseParse.js";
 import { getPrisma } from "../lib/prisma.js";
 import aiService from "./ai.service.js";

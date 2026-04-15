@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { AuthProvider, UserRole } from "../../generated/prisma/enums.js";
+import { AuthProvider, UserRole } from "@prisma/client";
 import { ErrorCode } from "../constants/errorCodes.js";
 import { HttpStatus } from "../constants/httpStatus.js";
 import { ERROR_MESSAGES } from "../constants/messages.js";

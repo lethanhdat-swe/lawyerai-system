@@ -1,5 +1,5 @@
-import type { BlogComment, BlogPost, Profile, Tag, User } from "../../generated/prisma/client.js";
-import { BlogPostStatus, ReputationReason } from "../../generated/prisma/enums.js";
+import type { BlogComment, BlogPost, Profile, Tag, User } from "@prisma/client";
+import { BlogPostStatus, ReputationReason } from "@prisma/client";
 import { ErrorCode } from "../constants/errorCodes.js";
 import { HttpStatus } from "../constants/httpStatus.js";
 import { ERROR_MESSAGES } from "../constants/messages.js";
@@ -406,7 +406,7 @@ export async function listPublishedBlogPosts(params: {
         tagId = tag.id;
     }
 
-    const where: import("../../generated/prisma/client.js").Prisma.BlogPostWhereInput = {
+    const where: import("@prisma/client").Prisma.BlogPostWhereInput = {
         status: BlogPostStatus.PUBLISHED,
         ...(params.verifiedOnly ? { isVerified: true } : {}),
         ...(params.authorId ? { authorId: params.authorId } : {}),
@@ -682,7 +682,7 @@ export async function adminListBlogPosts(params: {
         }
     }
 
-    const where: import("../../generated/prisma/client.js").Prisma.BlogPostWhereInput = {
+    const where: import("@prisma/client").Prisma.BlogPostWhereInput = {
         ...(params.status ? { status: params.status } : {}),
         ...(params.authorId ? { authorId: params.authorId } : {}),
         ...(params.verifiedOnly ? { isVerified: true } : {}),

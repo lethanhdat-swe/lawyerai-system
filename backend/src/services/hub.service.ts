@@ -1,5 +1,5 @@
-import type { HubCategory, HubComment, HubFeedback, HubPost, Profile, User } from "../../generated/prisma/client.js";
-import { FeedbackStatus, HubPostStatus } from "../../generated/prisma/enums.js";
+import type { HubCategory, HubComment, HubFeedback, HubPost, Profile, User } from "@prisma/client";
+import { FeedbackStatus, HubPostStatus } from "@prisma/client";
 import { ErrorCode } from "../constants/errorCodes.js";
 import { HttpStatus } from "../constants/httpStatus.js";
 import { ERROR_MESSAGES } from "../constants/messages.js";
@@ -357,7 +357,7 @@ export async function listPublishedHubPosts(params: {
         categoryId = cat.id;
     }
 
-    const where: import("../../generated/prisma/client.js").Prisma.HubPostWhereInput = {
+    const where: import("@prisma/client").Prisma.HubPostWhereInput = {
         status: HubPostStatus.PUBLISHED,
         ...(categoryId ? { categoryId } : {}),
         ...(params.authorId ? { authorId: params.authorId } : {}),
@@ -608,7 +608,7 @@ export async function adminListHubPosts(params: {
         }
     }
 
-    const where: import("../../generated/prisma/client.js").Prisma.HubPostWhereInput = {
+    const where: import("@prisma/client").Prisma.HubPostWhereInput = {
         ...(categoryId ? { categoryId } : {}),
         ...(params.status ? { status: params.status } : {}),
         ...(params.authorId ? { authorId: params.authorId } : {}),

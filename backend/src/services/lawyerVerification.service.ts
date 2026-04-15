@@ -1,5 +1,5 @@
-import type { Prisma } from "../../generated/prisma/client.js";
-import { LawyerVerificationStatus } from "../../generated/prisma/enums.js";
+import type { Prisma } from "@prisma/client";
+import { LawyerVerificationStatus } from "@prisma/client";
 import { ErrorCode } from "../constants/errorCodes.js";
 import { HttpStatus } from "../constants/httpStatus.js";
 import { HttpError } from "../lib/httpError.js";
@@ -70,10 +70,7 @@ class LawyerVerificationService {
         return row ? toVerificationDto(row) : null;
     }
 
-    async createMyVerification(
-        userId: string,
-        input: LawyerVerificationCreateInput,
-    ) {
+    async createMyVerification(userId: string, input: LawyerVerificationCreateInput) {
         const prisma = getPrisma();
         const existing = await prisma.lawyerVerification.findFirst({
             where: { userId },
@@ -100,20 +97,13 @@ class LawyerVerificationService {
         return toVerificationDto(created);
     }
 
-    async updateMyVerification(
-        userId: string,
-        input: LawyerVerificationPatchInput,
-    ) {
+    async updateMyVerification(userId: string, input: LawyerVerificationPatchInput) {
         const prisma = getPrisma();
         const current = await prisma.lawyerVerification.findFirst({
             where: { userId },
         });
         if (!current) {
-            throw new HttpError(
-                HttpStatus.NOT_FOUND,
-                "Verification not found",
-                ErrorCode.NOT_FOUND,
-            );
+            throw new HttpError(HttpStatus.NOT_FOUND, "Verification not found", ErrorCode.NOT_FOUND);
         }
 
         if (
@@ -131,12 +121,8 @@ class LawyerVerificationService {
         const updated = await prisma.lawyerVerification.update({
             where: { id: current.id },
             data: {
-                ...(input.jurisdiction !== undefined
-                    ? { jurisdiction: input.jurisdiction }
-                    : {}),
-                ...(input.barNumber !== undefined
-                    ? { barNumber: input.barNumber }
-                    : {}),
+                ...(input.jurisdiction !== undefined ? { jurisdiction: input.jurisdiction } : {}),
+                ...(input.barNumber !== undefined ? { barNumber: input.barNumber } : {}),
                 ...(input.firmName !== undefined ? { firmName: input.firmName } : {}),
                 ...(shouldResubmit
                     ? {

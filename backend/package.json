@@ -3,7 +3,6 @@
     "version": "1.0.0",
     "private": true,
     "description": "LawyerAI REST API — Node.js, TypeScript, Prisma (MySQL via driver adapter)",
-    "type": "module",
     "main": "dist/src/server.js",
     "scripts": {
         "dev": "tsx watch src/server.ts",

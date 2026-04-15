@@ -2,8 +2,7 @@
 // Prisma ORM 7: URL / shadow DB cấu hình trong prisma.config.ts (root project).
 
 generator client {
-    provider = "prisma-client"
-    output   = "../generated/prisma"
+    provider = "prisma-client-js"
 }
 
 datasource db {

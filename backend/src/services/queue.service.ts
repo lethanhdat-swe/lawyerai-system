@@ -1,4 +1,4 @@
-import { QueueStatus } from "../../generated/prisma/enums.js";
+import { QueueStatus } from "@prisma/client";
 import {
     AI_EMBEDDING_QUEUE,
     AI_FEEDBACK_QUEUE,

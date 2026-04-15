@@ -1,5 +1,5 @@
-import type { Prisma } from "../../../generated/prisma/client.js";
-import { LawyerVerificationStatus, UserRole } from "../../../generated/prisma/enums.js";
+import type { Prisma } from "@prisma/client";
+import { LawyerVerificationStatus, UserRole } from "@prisma/client";
 import { ErrorCode } from "../../constants/errorCodes.js";
 import { HttpStatus } from "../../constants/httpStatus.js";
 import { HttpError } from "../../lib/httpError.js";
@@ -71,11 +71,7 @@ class AdminVerificationsService {
         };
     }
 
-    async listLawyerVerifications(params: {
-        page: number;
-        pageSize: number;
-        status?: LawyerVerificationStatus;
-    }) {
+    async listLawyerVerifications(params: { page: number; pageSize: number; status?: LawyerVerificationStatus }) {
         const prisma = getPrisma();
         const where: Prisma.LawyerVerificationWhereInput = {};
         if (params.status) where.status = params.status;
@@ -110,11 +106,7 @@ class AdminVerificationsService {
             where: { id: verificationId },
         });
         if (!row) {
-            throw new HttpError(
-                HttpStatus.NOT_FOUND,
-                "Verification not found",
-                ErrorCode.NOT_FOUND,
-            );
+            throw new HttpError(HttpStatus.NOT_FOUND, "Verification not found", ErrorCode.NOT_FOUND);
         }
 
         const now = new Date();
@@ -188,11 +180,7 @@ class AdminVerificationsService {
             include: this.detailInclude,
         });
         if (!updated) {
-            throw new HttpError(
-                HttpStatus.NOT_FOUND,
-                "Verification not found",
-                ErrorCode.NOT_FOUND,
-            );
+            throw new HttpError(HttpStatus.NOT_FOUND, "Verification not found", ErrorCode.NOT_FOUND);
         }
 
         return {

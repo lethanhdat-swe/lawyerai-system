@@ -52,6 +52,7 @@ Open **http://localhost:3000**. When the dev server is ready, the terminal shows
 | Variable | Required | Description | Example |
 | --- | --- | --- | --- |
 | `NEXT_PUBLIC_API_BASE_URL` | Yes | Backend REST origin; no trailing slash. ⚠️ Wrong or missing values break every API call and `getApiBaseUrl()` throws at runtime. | `http://localhost:4000` |
+| `API_BASE_URL_SERVER` | Yes (Docker/SSR) | Internal API URL for server-side requests (SSR, route handlers) when running in Docker. Use compose service DNS, not public domain. | `http://lawyerai-api:8000` |
 
 ### Auth (Firebase)
 

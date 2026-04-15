@@ -1,4 +1,4 @@
-import { BlogPostStatus, LawyerVerificationStatus } from "../../../generated/prisma/enums.js";
+import { BlogPostStatus, LawyerVerificationStatus } from "@prisma/client";
 import { getPrisma } from "../../lib/prisma.js";
 
 export type AdminDashboardRange = "7d" | "30d" | "3m";
@@ -233,10 +233,7 @@ class AdminStatsService {
         recentPublishedBlogPosts: Array<{ createdAt: Date }>;
         recentChatMessages: Array<{ createdAt: Date }>;
     }): AdminDashboardTimeseriesPointDto[] {
-        const countsByBucket = new Map<
-            string,
-            Omit<AdminDashboardTimeseriesPointDto, "bucketStart">
-        >();
+        const countsByBucket = new Map<string, Omit<AdminDashboardTimeseriesPointDto, "bucketStart">>();
 
         for (const bucket of input.buckets) {
             countsByBucket.set(bucket.key, {
@@ -251,16 +248,8 @@ class AdminStatsService {
         this.bumpBuckets(input.recentUsers, countsByBucket, "usersNew");
         this.bumpBuckets(input.recentHubPosts, countsByBucket, "hubPosts");
         this.bumpBuckets(input.recentHubComments, countsByBucket, "hubComments");
-        this.bumpBuckets(
-            input.recentPublishedBlogPosts,
-            countsByBucket,
-            "blogPublished",
-        );
-        this.bumpBuckets(
-            input.recentChatMessages,
-            countsByBucket,
-            "chatMessages",
-        );
+        this.bumpBuckets(input.recentPublishedBlogPosts, countsByBucket, "blogPublished");
+        this.bumpBuckets(input.recentChatMessages, countsByBucket, "chatMessages");
 
         return input.buckets.map((bucket) => {
             const counts = countsByBucket.get(bucket.key);
@@ -277,10 +266,7 @@ class AdminStatsService {
 
     private bumpBuckets(
         rows: Array<{ createdAt: Date }>,
-        countsByBucket: Map<
-            string,
-            Omit<AdminDashboardTimeseriesPointDto, "bucketStart">
-        >,
+        countsByBucket: Map<string, Omit<AdminDashboardTimeseriesPointDto, "bucketStart">>,
         key: keyof Omit<AdminDashboardTimeseriesPointDto, "bucketStart">,
     ) {
         for (const row of rows) {
@@ -291,11 +277,7 @@ class AdminStatsService {
         }
     }
 
-    private buildBuckets(
-        rangeStart: Date,
-        now: Date,
-        _granularity: AdminDashboardGranularity,
-    ): TimeBucket[] {
+    private buildBuckets(rangeStart: Date, now: Date, _granularity: AdminDashboardGranularity): TimeBucket[] {
         const buckets: TimeBucket[] = [];
         const cursor = new Date(rangeStart);
         const end = this.startOfUtcDay(now);
@@ -329,9 +311,7 @@ class AdminStatsService {
     }
 
     private startOfUtcDay(date: Date): Date {
-        return new Date(
-            Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-        );
+        return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
     }
 
     private toUtcDateKey(date: Date): string {

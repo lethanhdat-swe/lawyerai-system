@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BlogPostStatus } from "../../generated/prisma/enums.js";
+import { BlogPostStatus } from "@prisma/client";
 
 const blogStatusSchema = z.nativeEnum(BlogPostStatus);
 

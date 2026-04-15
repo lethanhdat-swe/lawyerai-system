@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { HubPostStatus } from "../../generated/prisma/enums.js";
+import { HubPostStatus } from "@prisma/client";
 
 const hubStatusSchema = z.nativeEnum(HubPostStatus);
 
@@ -53,15 +53,9 @@ export const hubCategoryPatchSchema = z
         name: z.string().trim().min(1).max(191).optional(),
         sortOrder: z.coerce.number().int().optional(),
     })
-    .refine(
-        (value) =>
-            value.slug !== undefined ||
-            value.name !== undefined ||
-            value.sortOrder !== undefined,
-        {
-            message: "At least one field is required",
-        },
-    );
+    .refine((value) => value.slug !== undefined || value.name !== undefined || value.sortOrder !== undefined, {
+        message: "At least one field is required",
+    });
 
 export const hubCommentCreateBodySchema = z.object({
     body: z.string().trim().min(1).max(10_000),

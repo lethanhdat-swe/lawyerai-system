@@ -1,5 +1,5 @@
-import type { Prisma } from "../../../generated/prisma/client.js";
-import { UserRole } from "../../../generated/prisma/enums.js";
+import type { Prisma } from "@prisma/client";
+import { UserRole } from "@prisma/client";
 import { ErrorCode } from "../../constants/errorCodes.js";
 import { HttpStatus } from "../../constants/httpStatus.js";
 import { HttpError } from "../../lib/httpError.js";
@@ -66,21 +66,13 @@ class AdminUsersService {
 
         if (target.role === UserRole.ADMIN && newRole !== UserRole.ADMIN) {
             if (actorId === targetUserId) {
-                throw new HttpError(
-                    HttpStatus.FORBIDDEN,
-                    "Cannot demote yourself",
-                    ErrorCode.FORBIDDEN,
-                );
+                throw new HttpError(HttpStatus.FORBIDDEN, "Cannot demote yourself", ErrorCode.FORBIDDEN);
             }
             const adminCount = await prisma.user.count({
                 where: { role: UserRole.ADMIN },
             });
             if (adminCount <= 1) {
-                throw new HttpError(
-                    HttpStatus.FORBIDDEN,
-                    "Cannot remove last admin",
-                    ErrorCode.FORBIDDEN,
-                );
+                throw new HttpError(HttpStatus.FORBIDDEN, "Cannot remove last admin", ErrorCode.FORBIDDEN);
             }
         }
 

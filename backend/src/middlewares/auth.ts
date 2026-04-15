@@ -3,7 +3,7 @@ import { ErrorCode } from "../constants/errorCodes.js";
 import { HttpStatus } from "../constants/httpStatus.js";
 import { ERROR_MESSAGES } from "../constants/messages.js";
 import { HttpError } from "../lib/httpError.js";
-import { UserRole } from "../../generated/prisma/enums.js";
+import { UserRole } from "@prisma/client";
 import { verifyAccessTokenForRequest } from "../services/token.service.js";
 
 export const authenticate: RequestHandler = (req, res, next) => {

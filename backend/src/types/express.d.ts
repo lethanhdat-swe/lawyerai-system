@@ -1,4 +1,4 @@
-import type { UserRole } from "../../generated/prisma/enums.js";
+import type { UserRole } from "@prisma/client";
 
 declare global {
     namespace Express {
@@ -8,12 +8,7 @@ declare global {
 
         interface Response {
             success(data: unknown, statusCode?: number): Response;
-            error(payload: {
-                code: string;
-                message: string;
-                statusCode?: number;
-                details?: unknown;
-            }): Response;
+            error(payload: { code: string; message: string; statusCode?: number; details?: unknown }): Response;
             unauthorization(message?: string): Response;
         }
     }

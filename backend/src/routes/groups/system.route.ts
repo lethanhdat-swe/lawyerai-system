@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { UserRole } from "../../../generated/prisma/enums.js";
+import { UserRole } from "@prisma/client";
 import { authenticate, optionalAuth, requireRole } from "../../middlewares/auth.js";
 
 import chatAIRouter from "../chat-ai.route.js";

@@ -1,4 +1,4 @@
-import type { Profile, User } from "../../generated/prisma/client.js";
+import type { Profile, User } from "@prisma/client";
 
 export type PublicProfile = {
     displayName: string | null;
@@ -33,9 +33,7 @@ export function profileFromRow(p: Profile | null | undefined): PublicProfile {
     };
 }
 
-export function toPublicUser(
-    user: User & { profile?: Profile | null },
-): PublicUser {
+export function toPublicUser(user: User & { profile?: Profile | null }): PublicUser {
     return {
         id: user.id,
         email: user.email,

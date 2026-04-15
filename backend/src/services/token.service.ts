@@ -5,8 +5,8 @@ import { ERROR_MESSAGES } from "../constants/messages.js";
 import { HttpError } from "../lib/httpError.js";
 import { hashToken, randomUrlToken } from "../lib/cryptoToken.js";
 import { getPrisma } from "../lib/prisma.js";
-import type { User } from "../../generated/prisma/client.js";
-import { UserRole } from "../../generated/prisma/enums.js";
+import type { User } from "@prisma/client";
+import { UserRole } from "@prisma/client";
 
 const ACCESS_TYP = "access";
 const REFRESH_TYP = "refresh";
@@ -70,14 +70,9 @@ export function signAccessToken(user: { id: string; role: UserRole }): {
     accessTokenExpiresAt: string;
 } {
     const secret = getAccessSecret();
-    const expiresIn = (process.env.JWT_ACCESS_EXPIRES_IN ??
-        "15m") as jwt.SignOptions["expiresIn"];
+    const expiresIn = (process.env.JWT_ACCESS_EXPIRES_IN ?? "15m") as jwt.SignOptions["expiresIn"];
     const signOptions: jwt.SignOptions = { expiresIn };
-    const accessToken = jwt.sign(
-        { typ: ACCESS_TYP, sub: user.id, role: user.role },
-        secret,
-        signOptions,
-    );
+    const accessToken = jwt.sign({ typ: ACCESS_TYP, sub: user.id, role: user.role }, secret, signOptions);
     const decoded = jwt.decode(accessToken) as JwtPayload;
     const exp = decoded.exp;
     if (typeof exp !== "number") {
@@ -105,8 +100,7 @@ export async function issueTokenPair(user: User): Promise<TokenPair> {
 async function createRefreshTokenJti(userId: string): Promise<string> {
     const prisma = getPrisma();
     const refreshSecret = getRefreshSecret();
-    const expiresIn = (process.env.JWT_REFRESH_EXPIRES_IN ??
-        "7d") as jwt.SignOptions["expiresIn"];
+    const expiresIn = (process.env.JWT_REFRESH_EXPIRES_IN ?? "7d") as jwt.SignOptions["expiresIn"];
 
     const pendingHash = hashToken(randomUrlToken(16));
     const session = await prisma.refreshSession.create({
@@ -118,11 +112,7 @@ async function createRefreshTokenJti(userId: string): Promise<string> {
     });
 
     const signOptions: jwt.SignOptions = { expiresIn };
-    const refreshToken = jwt.sign(
-        { typ: REFRESH_TYP, sub: userId, sid: session.id },
-        refreshSecret,
-        signOptions,
-    );
+    const refreshToken = jwt.sign({ typ: REFRESH_TYP, sub: userId, sid: session.id }, refreshSecret, signOptions);
     const decoded = jwt.decode(refreshToken) as JwtPayload;
     const exp = decoded.exp;
     if (typeof exp !== "number") {
@@ -144,9 +134,7 @@ async function createRefreshTokenJti(userId: string): Promise<string> {
     return refreshToken;
 }
 
-export async function rotateRefreshToken(
-    refreshToken: string,
-): Promise<TokenPair> {
+export async function rotateRefreshToken(refreshToken: string): Promise<TokenPair> {
     const prisma = getPrisma();
     let payload: JwtPayload;
     try {
@@ -211,9 +199,7 @@ export async function rotateRefreshToken(
     return issueTokenPair(user);
 }
 
-export async function revokeRefreshSession(
-    refreshToken: string,
-): Promise<void> {
+export async function revokeRefreshSession(refreshToken: string): Promise<void> {
     const prisma = getPrisma();
     let payload: JwtPayload;
     try {
@@ -240,9 +226,7 @@ export async function revokeRefreshSession(
     });
 }
 
-export async function revokeAllRefreshSessionsForUser(
-    userId: string,
-): Promise<void> {
+export async function revokeAllRefreshSessionsForUser(userId: string): Promise<void> {
     const prisma = getPrisma();
     await prisma.refreshSession.updateMany({
         where: { userId, revokedAt: null },

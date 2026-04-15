@@ -1,4 +1,4 @@
-import { ReputationReason } from "../../generated/prisma/enums.js";
+import { ReputationReason } from "@prisma/client";
 import { DELTA_COMMENT_HELPFUL } from "../constants/reputation.constants.js";
 import { ErrorCode } from "../constants/errorCodes.js";
 import { HttpStatus } from "../constants/httpStatus.js";
@@ -20,18 +20,10 @@ export async function toggleHubCommentLike(input: {
         select: { id: true, authorId: true },
     });
     if (!comment) {
-        throw new HttpError(
-            HttpStatus.NOT_FOUND,
-            "Comment not found",
-            ErrorCode.NOT_FOUND,
-        );
+        throw new HttpError(HttpStatus.NOT_FOUND, "Comment not found", ErrorCode.NOT_FOUND);
     }
     if (comment.authorId === input.actorUserId) {
-        throw new HttpError(
-            HttpStatus.CONFLICT,
-            "Cannot like your own comment",
-            ErrorCode.VALIDATION_ERROR,
-        );
+        throw new HttpError(HttpStatus.CONFLICT, "Cannot like your own comment", ErrorCode.VALIDATION_ERROR);
     }
 
     const existing = await prisma.hubCommentLike.findUnique({
@@ -93,18 +85,10 @@ export async function toggleBlogCommentLike(input: {
         select: { id: true, authorId: true },
     });
     if (!comment) {
-        throw new HttpError(
-            HttpStatus.NOT_FOUND,
-            "Comment not found",
-            ErrorCode.NOT_FOUND,
-        );
+        throw new HttpError(HttpStatus.NOT_FOUND, "Comment not found", ErrorCode.NOT_FOUND);
     }
     if (comment.authorId === input.actorUserId) {
-        throw new HttpError(
-            HttpStatus.CONFLICT,
-            "Cannot like your own comment",
-            ErrorCode.VALIDATION_ERROR,
-        );
+        throw new HttpError(HttpStatus.CONFLICT, "Cannot like your own comment", ErrorCode.VALIDATION_ERROR);
     }
 
     const existing = await prisma.blogCommentLike.findUnique({

@@ -1,4 +1,4 @@
-import { IdeaStatus } from "../../generated/prisma/client.js";
+import { IdeaStatus } from "@prisma/client";
 import { ErrorCode } from "../constants/errorCodes.js";
 import { HttpStatus } from "../constants/httpStatus.js";
 import blogIdeaService from "../services/blog-idea.service.js";

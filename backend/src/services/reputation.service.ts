@@ -1,9 +1,6 @@
-import type { Prisma } from "../../generated/prisma/client.js";
-import { ReputationReason, UserRole } from "../../generated/prisma/enums.js";
-import {
-    DELTA_BLOG_POST_LIKED,
-    DELTA_BLOG_PUBLISHED,
-} from "../constants/reputation.constants.js";
+import type { Prisma } from "@prisma/client";
+import { ReputationReason, UserRole } from "@prisma/client";
+import { DELTA_BLOG_POST_LIKED, DELTA_BLOG_PUBLISHED } from "../constants/reputation.constants.js";
 import { ErrorCode } from "../constants/errorCodes.js";
 import { HttpStatus } from "../constants/httpStatus.js";
 import { HttpError } from "../lib/httpError.js";
@@ -62,11 +59,7 @@ export async function applyReputationDelta(input: {
         select: { id: true },
     });
     if (!user) {
-        throw new HttpError(
-            HttpStatus.NOT_FOUND,
-            "User not found",
-            ErrorCode.NOT_FOUND,
-        );
+        throw new HttpError(HttpStatus.NOT_FOUND, "User not found", ErrorCode.NOT_FOUND);
     }
 
     await prisma.$transaction(async (tx) => {
@@ -102,11 +95,7 @@ export async function applyReputationDelta(input: {
     return { score: raw };
 }
 
-export async function awardPublishedBlogScore(
-    authorId: string,
-    blogPostId: string,
-    likeCount: number,
-): Promise<void> {
+export async function awardPublishedBlogScore(authorId: string, blogPostId: string, likeCount: number): Promise<void> {
     await applyReputationDelta({
         userId: authorId,
         delta: DELTA_BLOG_PUBLISHED,
@@ -123,11 +112,7 @@ export async function awardPublishedBlogScore(
     }
 }
 
-export async function revokePublishedBlogScore(
-    authorId: string,
-    blogPostId: string,
-    likeCount: number,
-): Promise<void> {
+export async function revokePublishedBlogScore(authorId: string, blogPostId: string, likeCount: number): Promise<void> {
     await applyReputationDelta({
         userId: authorId,
         delta: -DELTA_BLOG_PUBLISHED,

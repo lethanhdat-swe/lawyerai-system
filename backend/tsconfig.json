@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
         "target": "ES2022",
-        "module": "NodeNext",
-        "moduleResolution": "NodeNext",
+        "module": "CommonJS",
+        "moduleResolution": "node",
         "lib": ["ES2022"],
         "outDir": "dist",
         "strict": true,
@@ -14,5 +14,5 @@
         "declarationMap": true,
         "sourceMap": true
     },
-    "include": ["src/**/*.ts", "generated/prisma/**/*.ts"]
+    "include": ["src/**/*.ts"]
 }

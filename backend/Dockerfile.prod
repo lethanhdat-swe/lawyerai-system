@@ -1,0 +1,48 @@
+# Stage 1: Install dependencies
+FROM node:25-slim AS deps
+# Cài đặt build-essential chỉ nếu bạn có native dependencies (node-gyp)
+RUN apt-get update && apt-get install -y \
+    python3 make g++ libgomp1 openssl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY package*.json ./
+COPY prisma ./prisma/
+RUN npm ci
+RUN npx prisma generate
+
+# Stage 2: Build source code
+FROM deps AS builder
+WORKDIR /app
+COPY tsconfig*.json ./
+COPY src ./src
+RUN npm run build
+
+# Stage 3: Runner
+FROM node:25-slim AS runner
+# Quan trọng: Cài đặt openssl và libgomp1 cho Prisma và các thư viện AI/Math
+RUN apt-get update && apt-get install -y \
+    libgomp1 openssl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Thiết lập môi trường Production
+ENV NODE_ENV=production
+ENV PORT=8000
+
+# Copy node_modules từ stage deps và dọn dẹp devDependencies
+COPY --from=deps /app/node_modules ./node_modules
+COPY package*.json ./
+
+# Copy kết quả build và prisma engines
+COPY --from=builder /app/dist ./dist
+COPY --from=deps /app/prisma ./prisma
+
+RUN npm prune --omit=dev
+RUN npx prisma generate
+
+EXPOSE 8000
+
+# Chạy trực tiếp bằng node để tối ưu tín hiệu hệ thống
+CMD ["node", "dist/server.js"]

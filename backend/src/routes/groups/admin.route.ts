@@ -4,7 +4,7 @@ import { hubAdminRouter } from "../hubAdmin.route.js";
 import { hubCategoryAdminRouter } from "../hubCategoryAdmin.route.js";
 import { adminRouter } from "../admin/index.js";
 import { authenticate, requireRole } from "../../middlewares/auth.js";
-import { UserRole } from "../../../generated/prisma/enums.js";
+import { UserRole } from "@prisma/client";
 
 export const adminRoutesRouter = Router();
 
